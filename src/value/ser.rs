@@ -1,3 +1,7 @@
+use alloc::borrow::ToOwned;
+use alloc::string::{String, ToString};
+use alloc::vec::Vec;
+
 use serde::ser::Impossible;
 use serde::{self, Serialize};
 

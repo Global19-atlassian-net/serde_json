@@ -1,10 +1,16 @@
 //! When serializing or deserializing JSON goes wrong.
 
-use std::error;
-use std::fmt::{self, Debug, Display};
+use alloc::boxed::Box;
+use alloc::string::{String, ToString};
+use core::fmt::{self, Debug, Display};
+use core::result;
+use core::str::FromStr;
+#[cfg(feature = "std")]
+use std::error::{Error as StdError};
+#[cfg(not(feature = "std"))]
+use serde::ser::StdError;
+#[cfg(feature = "std")]
 use std::io;
-use std::result;
-use std::str::FromStr;
 
 use serde::de;
 use serde::ser;
@@ -50,6 +56,7 @@ impl Error {
     pub fn classify(&self) -> Category {
         match self.err.code {
             ErrorCode::Message(_) => Category::Data,
+            #[cfg(feature = "std")]
             ErrorCode::Io(_) => Category::Io,
             ErrorCode::EofWhileParsingList
             | ErrorCode::EofWhileParsingObject
@@ -131,6 +138,7 @@ pub enum Category {
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(fallible_impl_from))]
+#[cfg(feature = "std")]
 impl From<Error> for io::Error {
     /// Convert a `serde_json::Error` into an `io::Error`.
     ///
@@ -185,6 +193,7 @@ pub enum ErrorCode {
     Message(Box<str>),
 
     /// Some IO error occurred while serializing or deserializing.
+    #[cfg(feature = "std")]
     Io(io::Error),
 
     /// EOF while parsing a list.
@@ -273,6 +282,7 @@ impl Error {
     // Update `eager_json` crate when this function changes.
     #[doc(hidden)]
     #[cold]
+    #[cfg(feature = "std")]
     pub fn io(error: io::Error) -> Self {
         Error {
             err: Box::new(ErrorImpl {
@@ -302,6 +312,7 @@ impl Display for ErrorCode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ErrorCode::Message(ref msg) => f.write_str(msg),
+            #[cfg(feature = "std")]
             ErrorCode::Io(ref err) => Display::fmt(err, f),
             ErrorCode::EofWhileParsingList => f.write_str("EOF while parsing a list"),
             ErrorCode::EofWhileParsingObject => f.write_str("EOF while parsing an object"),
@@ -333,10 +344,11 @@ impl Display for ErrorCode {
     }
 }
 
-impl error::Error for Error {
+impl StdError for Error {
+    #[cfg(feature = "std")]
     fn description(&self) -> &str {
         match self.err.code {
-            ErrorCode::Io(ref err) => error::Error::description(err),
+            ErrorCode::Io(ref err) => StdError::description(err),
             _ => {
                 // If you want a better message, use Display::fmt or to_string().
                 "JSON error"
@@ -344,7 +356,8 @@ impl error::Error for Error {
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    #[cfg(feature = "std")]
+    fn cause(&self) -> Option<&StdError> {
         match self.err.code {
             ErrorCode::Io(ref err) => Some(err),
             _ => None,

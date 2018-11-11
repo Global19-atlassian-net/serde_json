@@ -320,6 +320,15 @@
 ))]
 #![deny(missing_docs)]
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
+#[cfg(not(feature = "std"))]
+extern crate alloc;
+#[cfg(feature = "std")]
+extern crate std as alloc;
+#[cfg(feature = "std")]
+extern crate core;
+
 #[macro_use]
 extern crate serde;
 #[cfg(feature = "preserve_order")]
@@ -327,11 +336,15 @@ extern crate indexmap;
 extern crate itoa;
 extern crate ryu;
 
+#[cfg(feature = "std")]
 #[doc(inline)]
-pub use self::de::{from_reader, from_slice, from_str, Deserializer, StreamDeserializer};
+pub use self::de::{from_reader};
+#[doc(inline)]
+pub use self::de::{from_slice, from_str, Deserializer, StreamDeserializer};
 #[doc(inline)]
 pub use self::error::{Error, Result};
 #[doc(inline)]
+#[cfg(feature = "std")]
 pub use self::ser::{
     to_string, to_string_pretty, to_vec, to_vec_pretty, to_writer, to_writer_pretty, Serializer,
 };
@@ -343,8 +356,8 @@ pub use self::value::{from_value, to_value, Map, Number, Value};
 macro_rules! try {
     ($e:expr) => {
         match $e {
-            ::std::result::Result::Ok(val) => val,
-            ::std::result::Result::Err(err) => return ::std::result::Result::Err(err),
+            ::core::result::Result::Ok(val) => val,
+            ::core::result::Result::Err(err) => return ::core::result::Result::Err(err),
         }
     };
 }
@@ -355,9 +368,11 @@ mod macros;
 pub mod de;
 pub mod error;
 pub mod map;
+#[cfg(feature = "std")]
 pub mod ser;
 pub mod value;
 
+#[cfg(feature = "std")]
 mod iter;
 mod number;
 mod read;

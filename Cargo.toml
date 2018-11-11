@@ -6,7 +6,7 @@ license = "MIT OR Apache-2.0"
 description = "A JSON serialization file format"
 repository = "https://github.com/serde-rs/json"
 documentation = "http://docs.serde.rs/serde_json/"
-keywords = ["json", "serde", "serialization"]
+keywords = ["json", "serde", "serialization", "no-std"]
 categories = ["encoding"]
 readme = "README.md"
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE-APACHE", "LICENSE-MIT"]
@@ -16,9 +16,9 @@ travis-ci = { repository = "serde-rs/json" }
 appveyor = { repository = "serde-rs/json" }
 
 [dependencies]
-serde = "1.0.60"
+serde = { version = "1.0.60", default-features = false, features = ["alloc"] }
 indexmap = { version = "1.0", optional = true }
-itoa = "0.4.3"
+itoa = { version = "0.4.3", default-features = false }
 ryu = "1.0"
 
 [dev-dependencies]
@@ -39,12 +39,14 @@ features = ["raw_value"]
 ### FEATURES #################################################################
 
 [features]
-default = []
+default = ["std"]
+
+std = []
 
 # Use a different representation for the map type of serde_json::Value.
 # This allows data to be read into a Value and written back to a JSON string
 # while preserving the order of map keys in the input.
-preserve_order = ["indexmap"]
+preserve_order = ["indexmap", "std"]
 
 # Use an arbitrary precision number representation for serde_json::Number. This
 # allows JSON numbers of arbitrary size/precision to be read into a Number and

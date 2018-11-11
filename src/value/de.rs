@@ -1,8 +1,10 @@
-use std::borrow::Cow;
-use std::fmt;
-use std::slice;
-use std::str;
-use std::vec;
+use alloc::borrow::{Cow, ToOwned};
+use alloc::string::String;
+use alloc::vec;
+use alloc::vec::Vec;
+use core::fmt;
+use core::slice;
+use core::str;
 
 use serde;
 use serde::de::{

@@ -31,9 +31,14 @@ use serde::ser::{self, Serialize, Serializer};
 
 use serde_bytes::{ByteBuf, Bytes};
 
+#[cfg(feature = "std")]
 use serde_json::{
-    from_reader, from_slice, from_str, from_value, to_string, to_string_pretty, to_value, to_vec,
-    to_writer, Deserializer, Number, Value,
+    from_reader, to_string, to_string_pretty, to_vec,
+    to_writer,
+};
+use serde_json::{
+    from_slice, from_str, from_value, to_value,
+    Deserializer, Number, Value,
 };
 
 macro_rules! treemap {
@@ -72,6 +77,7 @@ struct Outer {
     inner: Vec<Inner>,
 }
 
+#[cfg(feature = "std")]
 fn test_encode_ok<T>(errors: &[(T, &str)])
 where
     T: PartialEq + Debug + ser::Serialize,
@@ -88,6 +94,7 @@ where
     }
 }
 
+#[cfg(feature = "std")]
 fn test_pretty_encode_ok<T>(errors: &[(T, &str)])
 where
     T: PartialEq + Debug + ser::Serialize,
@@ -105,6 +112,7 @@ where
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_null() {
     let tests = &[((), "null")];
     test_encode_ok(tests);
@@ -112,6 +120,7 @@ fn test_write_null() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_u64() {
     let tests = &[(3u64, "3"), (u64::MAX, &u64::MAX.to_string())];
     test_encode_ok(tests);
@@ -119,6 +128,7 @@ fn test_write_u64() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_i64() {
     let tests = &[
         (3i64, "3"),
@@ -131,6 +141,7 @@ fn test_write_i64() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_f64() {
     let tests = &[
         (3.0, "3.0"),
@@ -146,6 +157,7 @@ fn test_write_f64() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_encode_nonfinite_float_yields_null() {
     let v = to_value(::std::f64::NAN).unwrap();
     assert!(v.is_null());
@@ -161,6 +173,7 @@ fn test_encode_nonfinite_float_yields_null() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_str() {
     let tests = &[("", "\"\""), ("foo", "\"foo\"")];
     test_encode_ok(tests);
@@ -168,6 +181,7 @@ fn test_write_str() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_bool() {
     let tests = &[(true, "true"), (false, "false")];
     test_encode_ok(tests);
@@ -175,6 +189,7 @@ fn test_write_bool() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_char() {
     let tests = &[
         ('n', "\"n\""),
@@ -194,6 +209,7 @@ fn test_write_char() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_list() {
     test_encode_ok(&[
         (vec![], "[]"),
@@ -244,6 +260,7 @@ fn test_write_list() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_object() {
     test_encode_ok(&[
         (treemap!(), "{}"),
@@ -456,6 +473,7 @@ fn test_write_object() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_tuple() {
     test_encode_ok(&[((5,), "[5]")]);
 
@@ -467,6 +485,7 @@ fn test_write_tuple() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_enum() {
     test_encode_ok(&[
         (Animal::Dog, "\"Dog\""),
@@ -533,6 +552,7 @@ fn test_write_enum() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_option() {
     test_encode_ok(&[(None, "null"), (Some("jodhpurs"), "\"jodhpurs\"")]);
 
@@ -550,6 +570,7 @@ fn test_write_option() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_write_newtype_struct() {
     #[derive(Serialize, PartialEq, Debug)]
     struct Newtype(BTreeMap<String, i32>);
@@ -1374,6 +1395,7 @@ fn test_missing_renamed_field() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_serialize_seq_with_no_len() {
     #[derive(Clone, Debug, PartialEq)]
     struct MyVec<T>(Vec<T>);
@@ -1460,6 +1482,7 @@ fn test_serialize_seq_with_no_len() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_serialize_map_with_no_len() {
     #[derive(Clone, Debug, PartialEq)]
     struct MyMap<K, V>(BTreeMap<K, V>);
@@ -1553,6 +1576,7 @@ fn test_serialize_map_with_no_len() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_deserialize_from_stream() {
     use serde::Deserialize;
     use std::net;
@@ -1593,6 +1617,7 @@ fn test_deserialize_from_stream() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_serialize_rejects_bool_keys() {
     let map = treemap!(
         true => 2,
@@ -1604,6 +1629,7 @@ fn test_serialize_rejects_bool_keys() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_serialize_rejects_adt_keys() {
     let map = treemap!(
         Some("a") => 2,
@@ -1616,6 +1642,7 @@ fn test_serialize_rejects_adt_keys() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_bytes_ser() {
     let buf = vec![];
     let bytes = Bytes::new(&buf);
@@ -1627,6 +1654,8 @@ fn test_bytes_ser() {
 }
 
 #[test]
+#[cfg(feature = "std")]
+#[cfg(feature = "std")]
 fn test_byte_buf_ser() {
     let bytes = ByteBuf::new();
     assert_eq!(to_string(&bytes).unwrap(), "[]".to_string());
@@ -1778,6 +1807,7 @@ fn test_disable_recursion_limit() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_integer_key() {
     // map with integer keys
     let map = treemap!(
@@ -1796,6 +1826,7 @@ fn test_integer_key() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_integer128_key() {
     let map = treemap! {
         100000000000000000000000000000000000000u128 => ()
@@ -1806,6 +1837,7 @@ fn test_integer128_key() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_deny_float_key() {
     #[derive(Eq, PartialEq, Ord, PartialOrd)]
     struct Float;
@@ -1838,6 +1870,7 @@ fn test_borrowed_key() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_effectively_string_keys() {
     #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Serialize, Deserialize)]
     enum Enum {
@@ -1864,6 +1897,7 @@ fn test_effectively_string_keys() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_json_macro() {
     // This is tricky because the <...> is not a single TT and the comma inside
     // looks like an array element separator.
@@ -1961,6 +1995,7 @@ impl io::Read for FailReader {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_category() {
     assert!(from_str::<String>("123").unwrap_err().is_data());
 
@@ -2001,6 +2036,7 @@ fn test_category() {
 #[test]
 // Clippy false positive: https://github.com/Manishearth/rust-clippy/issues/292
 #[cfg_attr(feature = "cargo-clippy", allow(needless_lifetimes))]
+#[cfg(feature = "std")]
 fn test_into_io_error() {
     fn io_error<'de, T: Deserialize<'de> + Debug>(j: &'static str) -> io::Error {
         from_str::<T>(j).unwrap_err().into()
@@ -2037,6 +2073,7 @@ fn null_invalid_type() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_integer128() {
     let signed = &[i128::min_value(), -1, 0, 1, i128::max_value()];
     let unsigned = &[0, 1, u128::max_value()];

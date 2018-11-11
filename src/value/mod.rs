@@ -92,10 +92,13 @@
 //! [from_slice]: https://docs.serde.rs/serde_json/de/fn.from_slice.html
 //! [from_reader]: https://docs.serde.rs/serde_json/de/fn.from_reader.html
 
-use std::fmt::{self, Debug};
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::fmt::{self, Debug};
+use core::mem;
+use core::str;
+#[cfg(feature = "std")]
 use std::io;
-use std::mem;
-use std::str;
 
 use serde::de::DeserializeOwned;
 use serde::ser::Serialize;
@@ -190,10 +193,12 @@ impl Debug for Value {
     }
 }
 
+#[cfg(feature = "std")]
 struct WriterFormatter<'a, 'b: 'a> {
     inner: &'a mut fmt::Formatter<'b>,
 }
 
+#[cfg(feature = "std")]
 impl<'a, 'b> io::Write for WriterFormatter<'a, 'b> {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         fn io_error<E>(_: E) -> io::Error {
@@ -211,6 +216,7 @@ impl<'a, 'b> io::Write for WriterFormatter<'a, 'b> {
     }
 }
 
+#[cfg(feature = "std")]
 impl fmt::Display for Value {
     /// Display a JSON value as a string.
     ///

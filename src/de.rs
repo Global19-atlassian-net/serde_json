@@ -1,10 +1,13 @@
 //! Deserialize JSON data to a Rust data structure.
 
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::marker::PhantomData;
+use core::result;
+use core::str::FromStr;
+use core::{i32, u64};
+#[cfg(feature = "std")]
 use std::io;
-use std::marker::PhantomData;
-use std::result;
-use std::str::FromStr;
-use std::{i32, u64};
 
 use serde::de::{self, Expected, Unexpected};
 
@@ -12,7 +15,9 @@ use super::error::{Error, ErrorCode, Result};
 
 use read::{self, Reference};
 
-pub use read::{IoRead, Read, SliceRead, StrRead};
+#[cfg(feature = "std")]
+pub use read::IoRead;
+pub use read::{Read, SliceRead, StrRead};
 
 use number::Number;
 #[cfg(feature = "arbitrary_precision")]
@@ -63,6 +68,7 @@ where
     }
 }
 
+#[cfg(feature = "std")]
 impl<R> Deserializer<read::IoRead<R>>
 where
     R: io::Read,
@@ -2241,6 +2247,7 @@ where
 /// is wrong with the data, for example required struct fields are missing from
 /// the JSON map or some number is too big to fit in the expected primitive
 /// type.
+#[cfg(feature = "std")]
 pub fn from_reader<R, T>(rdr: R) -> Result<T>
 where
     R: io::Read,
